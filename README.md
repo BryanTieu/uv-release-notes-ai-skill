@@ -6,6 +6,14 @@ This workspace contains a custom VS Code Copilot skill for answering questions a
 
 Invoke the skill explicitly in Copilot Chat using `/mv-uv`, then ask your question.
 
+## Get This Skill from GitHub
+
+Use this command to download the skill workspace with docs wired correctly:
+
+- `git clone --recurse-submodules https://github.com/BryanTieu/uv-release-notes-ai-skill.git`
+
+Then open the folder in VS Code and invoke `/mv-uv` in Copilot Chat.
+
 Copy and paste any of these into Copilot Chat:
 
 - /mv-uv What was fixed in UNV-5287?
