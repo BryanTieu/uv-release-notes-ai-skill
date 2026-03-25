@@ -1,0 +1,11 @@
+# Temporary and OS files
+*.zip
+Thumbs.db
+.DS_Store
+
+# Backup folders created during docs migration
+docs.local-backup/
+
+# VS Code local settings (keep workspace-level .vscode if needed, but ignore user-specific)
+.vscode/settings.json
+.vscode/launch.json

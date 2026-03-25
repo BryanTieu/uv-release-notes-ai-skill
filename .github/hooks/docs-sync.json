@@ -1,0 +1,12 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "type": "command",
+        "windows": "powershell -ExecutionPolicy Bypass -File ./scripts/update-docs.ps1 -NonBlocking",
+        "timeout": 30,
+        "cwd": "."
+      }
+    ]
+  }
+}
