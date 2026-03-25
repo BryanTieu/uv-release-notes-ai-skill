@@ -93,10 +93,10 @@ In a git-based workspace, `docs/` is configured as a git submodule. To pull the 
 
 If this is the first time the repo has been cloned by another user:
 
-- `git clone --recurse-submodules <YOUR_ORG_REPO_URL>`
+- `git clone --recurse-submodules <YOUR_REPO_URL>`
 - or, after clone: `./scripts/update-docs.ps1 -Init`
 
-> **Note:** Replace `<YOUR_ORG_REPO_URL>` with the URL of this repository after you push it to your organization's GitHub.
+> **Note:** Replace `<YOUR_REPO_URL>` with the URL of this repository after you push it to GitHub.
 
 ## Reuse For Other Users
 
