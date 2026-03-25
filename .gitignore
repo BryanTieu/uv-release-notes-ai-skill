@@ -6,6 +6,9 @@ Thumbs.db
 # Backup folders created during docs migration
 docs.local-backup/
 
+# Generated at runtime by update-docs.ps1
+docs/
+
 # VS Code local settings (keep workspace-level .vscode if needed, but ignore user-specific)
 .vscode/settings.json
 .vscode/launch.json

@@ -23,7 +23,7 @@ Copy and paste any of these into Copilot Chat:
 
 - `.github/skills/mv-uv/SKILL.md`: Skill definition for UniVerse release-note lookup behavior.
 - `.github/instructions/mv-release-notes.instructions.md`: Workspace instruction rules for answer quality, strict response template, and citation format.
-- `docs/`: Release note source documents used as the knowledge base. This folder is downloaded automatically on first use from `https://github.com/BryanTieu/mv-release-notes.git`.
+- `docs/`: Release note source documents used as the knowledge base. This folder is created automatically on first use.
 
 ## What This Skill Can Answer
 
@@ -94,14 +94,12 @@ The release note source is stored in:
 
 - `https://github.com/BryanTieu/mv-release-notes.git`
 
-`docs/` is downloaded on first use if missing. To pull the latest release notes manually at any time:
-
-- `./scripts/update-docs.ps1 -Init`
+`docs/` is downloaded from the external docs repo on first use and automatically checked for updates on each session start.
 
 If this is the first time the repo has been cloned by another user:
 
 - `git clone https://github.com/BryanTieu/uv-release-notes-ai-skill.git`
-- then open in VS Code (session-start hook auto-fetches docs), or run `./scripts/update-docs.ps1 -Init`
+- open in VS Code (session-start hook handles docs bootstrap/update), or run `./scripts/update-docs.ps1 -Init`
 
 ## Reuse For Other Users
 
@@ -110,7 +108,7 @@ This skill is reusable by other users as long as they open this repository in VS
 Recommended sharing model:
 
 1. Keep this repository as the reusable skill workspace.
-2. Keep release notes in the external GitHub repo used for docs download.
+2. Keep release notes in the external GitHub docs repository.
 3. Ask users to clone this repository.
 4. Users open the repo in VS Code and use `/mv-uv`.
 
@@ -125,8 +123,9 @@ How it works for the recipient:
 1. They unzip the project.
 2. They open it in VS Code.
 3. The session-start hook runs `./scripts/update-docs.ps1 -NonBlocking`.
-4. If `docs/` is missing and the workspace is not operating as a git submodule checkout, the script downloads the markdown repository archive from GitHub and populates `docs/` automatically.
-5. The skill can then read the downloaded markdown files normally.
+4. If `docs/` is missing, the script downloads the markdown repository archive from GitHub and populates `docs/` automatically.
+5. If `docs/` already exists, the script checks the remote docs version and only downloads when updates are available.
+6. The skill reads from the local `docs/` folder normally.
 
 Requirements for zip-based use:
 
@@ -139,18 +138,19 @@ If the automatic fetch fails, the user can retry manually:
 
 ## Will New Markdown Files Be Read?
 
-Yes. New markdown files added to the external docs repository will be available to the skill after the local `docs/` submodule is updated.
+Yes. New markdown files added to the external docs repository will be available to the skill after the local `docs/` folder is refreshed.
 
 How it works:
 
 1. A new `.md` file is added to `https://github.com/BryanTieu/mv-release-notes.git`.
-2. This workspace either pulls the latest submodule commit or downloads the latest repository archive.
+2. This workspace checks the remote docs version and downloads the latest repository archive when updates are available.
 3. The new file appears under `docs/` locally.
 4. The skill can read it because the workflow and instructions operate against files in `docs/`.
 
 To make newly added markdown files visible locally, run one of these:
 
-- `./scripts/update-docs.ps1 -Init`
+- wait for next session start (automatic check)
+- or run `./scripts/update-docs.ps1 -Init` to force refresh immediately
 
 This workspace also includes a Copilot session-start hook that attempts to refresh `docs/` automatically when a new agent session begins:
 

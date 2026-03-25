@@ -7,8 +7,51 @@ $ErrorActionPreference = 'Stop'
 
 $docsRepoUrl = 'https://github.com/BryanTieu/mv-release-notes.git'
 $docsArchiveUrl = 'https://github.com/BryanTieu/mv-release-notes/archive/refs/heads/main.zip'
+$docsCommitApiUrl = 'https://api.github.com/repos/BryanTieu/mv-release-notes/commits/main'
+$versionFileName = '.release-notes-version'
+
+function Get-RemoteDocsVersion {
+    try {
+        $headers = @{ 'User-Agent' = 'uv-release-notes-ai-skill' }
+        $response = Invoke-RestMethod -Uri $docsCommitApiUrl -Headers $headers
+        if ($response -and $response.sha) {
+            return [string]$response.sha
+        }
+    }
+    catch {
+        return $null
+    }
+
+    return $null
+}
+
+function Get-LocalDocsVersion {
+    $versionFilePath = Join-Path (Join-Path $PWD 'docs') $versionFileName
+    if (Test-Path $versionFilePath) {
+        return (Get-Content -Path $versionFilePath -Raw).Trim()
+    }
+
+    return $null
+}
+
+function Set-LocalDocsVersion {
+    param(
+        [string]$Version
+    )
+
+    if (-not $Version) {
+        return
+    }
+
+    $versionFilePath = Join-Path (Join-Path $PWD 'docs') $versionFileName
+    Set-Content -Path $versionFilePath -Value $Version -NoNewline
+}
 
 function Sync-DocsFromArchive {
+    param(
+        [string]$Version
+    )
+
     $docsPath = Join-Path $PWD 'docs'
     $tempRoot = Join-Path ([System.IO.Path]::GetTempPath()) ("mv-release-notes-" + [System.Guid]::NewGuid().ToString())
     $zipPath = Join-Path $tempRoot 'docs.zip'
@@ -32,6 +75,7 @@ function Sync-DocsFromArchive {
 
         New-Item -ItemType Directory -Path $docsPath | Out-Null
         Copy-Item -Path (Join-Path $repoRoot.FullName '*') -Destination $docsPath -Recurse -Force
+        Set-LocalDocsVersion -Version $Version
 
         Write-Host "Docs downloaded successfully from $docsRepoUrl"
     }
@@ -43,26 +87,30 @@ function Sync-DocsFromArchive {
 }
 
 try {
-    $canUseSubmodule = (Test-Path '.git') -and (Test-Path '.gitmodules')
+    $docsPath = Join-Path $PWD 'docs'
+    $hasDocs = Test-Path $docsPath
+    $remoteVersion = Get-RemoteDocsVersion
+    $localVersion = Get-LocalDocsVersion
 
-    if ($canUseSubmodule) {
-        if ($Init) {
-            git submodule update --init --recursive
-        }
-
-        git submodule sync -- docs
-        git submodule update --init --remote --merge docs
-
-        Write-Host 'Docs submodule synchronized successfully.'
+    if ($Init) {
+        Sync-DocsFromArchive -Version $remoteVersion
+        Write-Host 'Docs forced refresh completed.'
+    }
+    elseif (-not $hasDocs) {
+        Sync-DocsFromArchive -Version $remoteVersion
+        Write-Host 'Docs bootstrap completed.'
+    }
+    elseif (-not $remoteVersion) {
+        Write-Warning 'Unable to check remote docs version. Keeping existing local docs.'
+    }
+    elseif ($localVersion -eq $remoteVersion) {
+        Write-Host 'Docs are up to date. No download required.'
     }
     else {
-        if ($Init -or -not (Test-Path 'docs')) {
-            Sync-DocsFromArchive
-        }
-        else {
-            Write-Host 'Docs folder already present. Skipping download. Use -Init to force refresh.'
-        }
+        Sync-DocsFromArchive -Version $remoteVersion
+        Write-Host 'Docs updated to latest version.'
     }
+
 }
 catch {
     if ($NonBlocking) {
