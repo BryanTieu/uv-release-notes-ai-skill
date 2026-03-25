@@ -56,7 +56,12 @@ try {
         Write-Host 'Docs submodule synchronized successfully.'
     }
     else {
-        Sync-DocsFromArchive
+        if ($Init -or -not (Test-Path 'docs')) {
+            Sync-DocsFromArchive
+        }
+        else {
+            Write-Host 'Docs folder already present. Skipping download. Use -Init to force refresh.'
+        }
     }
 }
 catch {

@@ -8,9 +8,9 @@ Invoke the skill explicitly in Copilot Chat using `/mv-uv`, then ask your questi
 
 ## Get This Skill from GitHub
 
-Use this command to download the skill workspace with docs wired correctly:
+Use this command to download the skill workspace:
 
-- `git clone --recurse-submodules https://github.com/BryanTieu/uv-release-notes-ai-skill.git`
+- `git clone https://github.com/BryanTieu/uv-release-notes-ai-skill.git`
 
 Then open the folder in VS Code and invoke `/mv-uv` in Copilot Chat.
 
@@ -23,7 +23,7 @@ Copy and paste any of these into Copilot Chat:
 
 - `.github/skills/mv-uv/SKILL.md`: Skill definition for UniVerse release-note lookup behavior.
 - `.github/instructions/mv-release-notes.instructions.md`: Workspace instruction rules for answer quality, strict response template, and citation format.
-- `docs/`: Release note source documents used as the knowledge base. In git-based use this is sourced from the external GitHub repo `https://github.com/BryanTieu/mv-release-notes.git`. In zip-based use it can be downloaded automatically on first session.
+- `docs/`: Release note source documents used as the knowledge base. This folder is downloaded automatically on first use from `https://github.com/BryanTieu/mv-release-notes.git`.
 
 ## What This Skill Can Answer
 
@@ -94,15 +94,14 @@ The release note source is stored in:
 
 - `https://github.com/BryanTieu/mv-release-notes.git`
 
-In a git-based workspace, `docs/` is configured as a git submodule. To pull the latest release notes into this workspace:
+`docs/` is downloaded on first use if missing. To pull the latest release notes manually at any time:
 
-- `git submodule update --remote --merge docs`
-- `./scripts/update-docs.ps1`
+- `./scripts/update-docs.ps1 -Init`
 
 If this is the first time the repo has been cloned by another user:
 
-- `git clone --recurse-submodules https://github.com/BryanTieu/uv-release-notes-ai-skill.git`
-- or, after clone: `./scripts/update-docs.ps1 -Init`
+- `git clone https://github.com/BryanTieu/uv-release-notes-ai-skill.git`
+- then open in VS Code (session-start hook auto-fetches docs), or run `./scripts/update-docs.ps1 -Init`
 
 ## Reuse For Other Users
 
@@ -111,8 +110,8 @@ This skill is reusable by other users as long as they open this repository in VS
 Recommended sharing model:
 
 1. Keep this repository as the reusable skill workspace.
-2. Keep release notes in the external GitHub repo used by the `docs/` submodule.
-3. Ask users to clone this repository with submodules.
+2. Keep release notes in the external GitHub repo used for docs download.
+3. Ask users to clone this repository.
 4. Users open the repo in VS Code and use `/mv-uv`.
 
 If you want broader reuse, this repository can also be turned into a GitHub template so other teams can create their own copy with the same skill setup.
@@ -151,8 +150,7 @@ How it works:
 
 To make newly added markdown files visible locally, run one of these:
 
-- `git submodule update --remote --merge docs`
-- `./scripts/update-docs.ps1`
+- `./scripts/update-docs.ps1 -Init`
 
 This workspace also includes a Copilot session-start hook that attempts to refresh `docs/` automatically when a new agent session begins:
 
